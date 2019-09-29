@@ -24,7 +24,7 @@
         var img = new Image();
         img.onload = draw;
         img.onerror = failed;
-        // img.src = "imagedata/landscape.jpg";
+        // img.src = "imagedata/marvel.jpg";
         img.src = URL.createObjectURL(this.files[0]);
       };
 
@@ -111,16 +111,19 @@
       }
 
       function draw() {
+        var canvasWidth = 960;
+        var imageWidth = canvasWidth / 2;
+        var imageHeight = this.height / (this.width / imageWidth);
         var canvas = document.getElementById("canvas");
-        canvas.width = this.width * 2;
-        canvas.height = this.height;
+        canvas.width = canvasWidth;
+        canvas.height = imageHeight;
         var ctx = canvas.getContext("2d");
 
         // draw the first/original image
-        ctx.drawImage(this, 0, 0);
+        ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
 
         // generate image data from the context
-        var imgData = ctx.getImageData(0, 0, this.width, this.height);
+        var imgData = ctx.getImageData(0, 0, imageWidth, imageHeight);
 
         // change it
         var pixels = imageDataDataToPixelDataArray(imgData.data);
@@ -168,7 +171,7 @@
         imgData.data.set(newImgData);
 
         // draw the altered image
-        ctx.putImageData(imgData, this.width, 0);
+        ctx.putImageData(imgData, imageWidth, 0);
       }
       function failed() {
         console.error("The provided file couldn't be loaded as an Image media");
