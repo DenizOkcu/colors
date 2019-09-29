@@ -9,7 +9,7 @@ export default [
     input: "src/main.js",
     output: {
       name: "Lib",
-      file: "dist/main.js",
+      file: "docs/main.js",
       format: "iife",
       sourcemap: true
     },
