@@ -1,18 +1,117 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Library Template</title>
-  <link rel="stylesheet" href="dist/main.css">
-</head>
+  <head>
+    <meta charset="utf-8" />
+    <title>Library Template</title>
+    <link rel="stylesheet" href="dist/main.css" />
+  </head>
 
-<body>
-  <script src="dist/main.js"></script>
-  <script type="text/javascript">
-    var lib = new Lib;
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="twelve columns">
+          <canvas id="canvas"></canvas>
+          <input type="file" id="inp" />
+        </div>
+      </div>
+    </div>
+    <script src="dist/main.js"></script>
+    <script type="text/javascript">
+      var lib = new Lib();
 
-    console.log('everything works: 1 + 2 =', lib.add(1,2));
-  </script>
-</body>
+      document.getElementById("inp").onchange = function(e) {
+        var img = new Image();
+        img.onload = draw;
+        img.onerror = failed;
+        // img.src = "imagedata/landscape.jpg";
+        img.src = URL.createObjectURL(this.files[0]);
+      };
+
+      function imageDataDataToPixelDataArray(data) {
+        var pixels = [];
+        var index = 0;
+
+        while (index < data.length) {
+          let rawPixelObject = {
+            r: data[index + 0],
+            g: data[index + 1],
+            b: data[index + 2],
+            a: data[index + 3]
+          };
+          pixels.push(rawPixelObject);
+          index = index + 4;
+        }
+
+        return pixels;
+      }
+
+      function pixelDataArrayToimageDataData(pixels) {
+        var result = [];
+
+        for (let index = 0; index < pixels.length; index++) {
+          result.push(pixels[index].r);
+          result.push(pixels[index].g);
+          result.push(pixels[index].b);
+          result.push(pixels[index].a);
+        }
+
+        return result;
+      }
+
+      function draw() {
+        var canvas = document.getElementById("canvas");
+        canvas.width = this.width * 2;
+        canvas.height = this.height;
+        var ctx = canvas.getContext("2d");
+
+        // draw the first/original image
+        ctx.drawImage(this, 0, 0);
+
+        // generate image data from the context
+        var imgData = ctx.getImageData(0, 0, this.width, this.height);
+
+        // change it
+        var pixels = imageDataDataToPixelDataArray(imgData.data);
+
+        var redPixels = [];
+        var greenPixels = [];
+        var bluePixels = [];
+        var rest = [];
+
+        for (let index = 0; index < pixels.length; index++) {
+          let pixel = pixels[index];
+
+          if (pixel.r > pixel.g && pixel.r > pixel.b) {
+            redPixels.push(pixel);
+          } else if (pixel.g > pixel.r && pixel.g > pixel.b) {
+            greenPixels.push(pixel);
+          } else {
+            bluePixels.push(pixel);
+          }
+        }
+
+        var newImgData = pixelDataArrayToimageDataData([
+          ...redPixels.sort((a, b) => {
+            return b.r - a.r;
+          }),
+          ...greenPixels.sort((a, b) => {
+            return b.g - a.g;
+          }),
+          ...bluePixels.sort((a, b) => {
+            return b.b - a.b;
+          })
+        ]);
+
+        // set the data
+        imgData.data.set(newImgData);
+
+        // draw the altered image
+        ctx.putImageData(imgData, this.width, 0);
+      }
+      function failed() {
+        console.error("The provided file couldn't be loaded as an Image media");
+      }
+    </script>
+  </body>
 </html>
