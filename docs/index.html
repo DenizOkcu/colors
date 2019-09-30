@@ -4,7 +4,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Colors</title>
-    <link rel="stylesheet" href="main.css" />
+    <link rel="stylesheet" href="dist/main.css" />
   </head>
 
   <body>
@@ -16,163 +16,22 @@
         </div>
       </div>
     </div>
-    <script src="main.js"></script>
+    <script src="dist/main.js"></script>
     <script type="text/javascript">
       var lib = new Lib();
+      var canvas = document.getElementById("canvas");
 
       document.getElementById("inp").onchange = function(e) {
         var img = new Image();
-        img.onload = draw;
+
+        img.onload = function() {
+          lib.draw(this, canvas);
+        };
         img.onerror = failed;
         // img.src = "imagedata/marvel.jpg";
         img.src = URL.createObjectURL(this.files[0]);
       };
 
-      function RGBToHSL(r, g, b) {
-        // Make r, g, and b fractions of 1
-        r /= 255;
-        g /= 255;
-        b /= 255;
-
-        // Find greatest and smallest channel values
-        let cmin = Math.min(r, g, b),
-          cmax = Math.max(r, g, b),
-          delta = cmax - cmin,
-          h = 0,
-          s = 0,
-          l = 0;
-        // Calculate hue
-        // No difference
-        if (delta == 0) h = 0;
-        // Red is max
-        else if (cmax == r) h = ((g - b) / delta) % 6;
-        // Green is max
-        else if (cmax == g) h = (b - r) / delta + 2;
-        // Blue is max
-        else h = (r - g) / delta + 4;
-
-        h = Math.round(h * 60);
-
-        // Make negative hues positive behind 360°
-        if (h < 0) h += 360;
-        // Calculate lightness
-        l = (cmax + cmin) / 2;
-
-        // Calculate saturation
-        s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
-
-        // Multiply l and s by 100
-        s = +(s * 100).toFixed(1);
-        l = +(l * 100).toFixed(1);
-
-        return [h, s, l];
-      }
-
-      function imageDataDataToPixelDataArray(data) {
-        var pixels = [];
-        var index = 0;
-
-        while (index < data.length) {
-          let rawPixelObject = {
-            r: data[index + 0],
-            g: data[index + 1],
-            b: data[index + 2],
-            a: data[index + 3]
-          };
-
-          var hslArray = RGBToHSL(
-            rawPixelObject.r,
-            rawPixelObject.g,
-            rawPixelObject.b
-          );
-
-          rawPixelObject.h = hslArray[0];
-          rawPixelObject.s = hslArray[1];
-          rawPixelObject.l = hslArray[2];
-
-          pixels.push(rawPixelObject);
-          index = index + 4;
-        }
-
-        return pixels;
-      }
-
-      function pixelDataArrayToimageDataData(pixels) {
-        var result = [];
-
-        for (let index = 0; index < pixels.length; index++) {
-          result.push(pixels[index].r);
-          result.push(pixels[index].g);
-          result.push(pixels[index].b);
-          result.push(pixels[index].a);
-        }
-
-        return result;
-      }
-
-      function draw() {
-        var canvasWidth = 960;
-        var imageWidth = canvasWidth / 2;
-        var imageHeight = this.height / (this.width / imageWidth);
-        var canvas = document.getElementById("canvas");
-        canvas.width = canvasWidth;
-        canvas.height = imageHeight;
-        var ctx = canvas.getContext("2d");
-
-        // draw the first/original image
-        ctx.drawImage(this, 0, 0, imageWidth, imageHeight);
-
-        // generate image data from the context
-        var imgData = ctx.getImageData(0, 0, imageWidth, imageHeight);
-
-        // change it
-        var pixels = imageDataDataToPixelDataArray(imgData.data);
-
-        var redPixels = [];
-        var greenPixels = [];
-        var bluePixels = [];
-
-        for (let index = 0; index < pixels.length; index++) {
-          let pixel = pixels[index];
-
-          if (pixel.h > 300 || pixel.h <= 60) {
-            redPixels.push(pixel);
-          } else if (pixel.h > 60 && pixel.h <= 180) {
-            greenPixels.push(pixel);
-          } else if (pixel.h > 180 && pixel.h <= 300) {
-            bluePixels.push(pixel);
-          }
-        }
-
-        var newImgData = pixelDataArrayToimageDataData([
-          ...redPixels.sort((a, b) => {
-            if (b.r === a.r) {
-              return b.l - a.l;
-            }
-            return b.r - a.r;
-          }),
-          ...greenPixels.sort((a, b) => {
-            if (b.g === a.g) {
-              return b.l - a.l;
-            }
-            return b.g - a.g;
-          }),
-          ...bluePixels.sort((a, b) => {
-            if (b.b === a.b) {
-              return b.l - a.l;
-            }
-            return b.b - a.b;
-          })
-        ]);
-
-        console.log(redPixels[0]);
-
-        // set the data
-        imgData.data.set(newImgData);
-
-        // draw the altered image
-        ctx.putImageData(imgData, imageWidth, 0);
-      }
       function failed() {
         console.error("The provided file couldn't be loaded as an Image media");
       }
