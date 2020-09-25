@@ -24,10 +24,10 @@ module.exports = {
   // collectCoverageFrom: null,
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
+  coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: ['/node_modules/'],
+  coveragePathIgnorePatterns: ["/node_modules/"],
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -36,7 +36,7 @@ module.exports = {
   //   "lcov",
   //   "clover"
   // ],
-  coverageReporters: ['text'],
+  coverageReporters: ["text"],
 
   // An object that configures minimum threshold enforcement for coverage results
   // coverageThreshold: null,
@@ -128,7 +128,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: 'node',
+  testEnvironment: "node",
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
