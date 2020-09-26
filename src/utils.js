@@ -22,7 +22,7 @@ function imageDataDataToPixelDataArray(data) {
       r: data[index + 0],
       g: data[index + 1],
       b: data[index + 2],
-      a: data[index + 3]
+      a: data[index + 3],
     };
 
     let hslArray = RGBToHSL(
@@ -94,7 +94,7 @@ export function draw(image, canvas) {
         return b.l - a.l;
       }
       return b.b - a.b;
-    })
+    }),
   ]);
 
   // set the data
@@ -102,4 +102,14 @@ export function draw(image, canvas) {
 
   // draw the altered image
   ctx.putImageData(imgData, imageWidth, 0);
+
+  var pixelTotal = redPixels.length + greenPixels.length + bluePixels.length;
+
+  var outputObject = {
+    redPixels: (redPixels.length / pixelTotal).toFixed(2),
+    greenPixels: (greenPixels.length / pixelTotal).toFixed(2),
+    bluePixels: (bluePixels.length / pixelTotal).toFixed(2),
+  };
+
+  return outputObject;
 }

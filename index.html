@@ -12,6 +12,7 @@
       <div class="row">
         <div class="twelve columns">
           <canvas id="canvas"></canvas>
+          <div id="output"></div>
           <input type="file" id="inp" />
         </div>
       </div>
@@ -21,15 +22,20 @@
       var lib = new Lib();
       var canvas = document.getElementById("canvas");
 
-      document.getElementById("inp").onchange = function(e) {
-        var img = new Image();
+      var img = new Image();
+      img.src = "imagedata/marvel.jpg";
 
-        img.onload = function() {
-          lib.draw(this, canvas);
-        };
-        img.onerror = failed;
-        // img.src = "imagedata/marvel.jpg";
-        img.src = URL.createObjectURL(this.files[0]);
+      img.onload = function () {
+        var output = lib.draw(img, canvas);
+        var outputDiv = document.getElementById("output");
+
+        outputDiv.innerHTML =
+          "<pre>" + JSON.stringify(output, null, 2) + "</pre>";
+      };
+      img.onerror = failed;
+
+      document.getElementById("inp").onchange = function (e) {
+        // img.src = URL.createObjectURL(this.files[0]);
       };
 
       function failed() {
