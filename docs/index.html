@@ -12,7 +12,8 @@
       <div class="row">
         <div class="twelve columns">
           <canvas id="canvas"></canvas>
-          <input type="file" id="inp" />
+          <textarea id="output" style="display: none"></textarea>
+          <input type="file" id="inp" multiple />
         </div>
       </div>
     </div>
@@ -20,21 +21,23 @@
     <script type="text/javascript">
       var lib = new Lib();
       var canvas = document.getElementById("canvas");
+      var outputDiv = document.getElementById("output");
 
-      document.getElementById("inp").onchange = function(e) {
-        var img = new Image();
+      document.getElementById("inp").onchange = function () {
+        const output = [];
 
-        img.onload = function() {
-          lib.draw(this, canvas);
-        };
-        img.onerror = failed;
-        // img.src = "imagedata/marvel.jpg";
-        img.src = URL.createObjectURL(this.files[0]);
+        Array.from(this.files).forEach((file, index) => {
+          var img = new Image();
+
+          img.onload = function () {
+            output.push(lib.draw(this, file.name, canvas));
+            outputDiv.innerHTML = JSON.stringify(output, null, 1);
+            outputDiv.style.display = "block";
+          };
+
+          img.src = URL.createObjectURL(file);
+        });
       };
-
-      function failed() {
-        console.error("The provided file couldn't be loaded as an Image media");
-      }
     </script>
   </body>
 </html>

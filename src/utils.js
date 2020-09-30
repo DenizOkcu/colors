@@ -1,14 +1,15 @@
+import { median, mean, std } from "mathjs";
 import { RGBToHSL } from "./colorFunctions";
 
 function pixelDataArrayToimageDataData(pixels) {
   const result = [];
 
-  for (let index = 0; index < pixels.length; index++) {
-    result.push(pixels[index].r);
-    result.push(pixels[index].g);
-    result.push(pixels[index].b);
-    result.push(pixels[index].a);
-  }
+  pixels.forEach((pixel) => {
+    result.push(pixel.r);
+    result.push(pixel.g);
+    result.push(pixel.b);
+    result.push(pixel.a);
+  });
 
   return result;
 }
@@ -42,8 +43,8 @@ function imageDataDataToPixelDataArray(data) {
   return pixels;
 }
 
-export function draw(image, canvas) {
-  const canvasWidth = 960;
+export function draw(image, name, canvas) {
+  const canvasWidth = 480;
   const imageWidth = canvasWidth / 2;
   const imageHeight = image.height / (image.width / imageWidth);
   const ctx = canvas.getContext("2d");
@@ -61,12 +62,11 @@ export function draw(image, canvas) {
   // generate image data from the context
   let imgData = ctx.getImageData(0, 0, imageWidth, imageHeight);
 
-  // change it
+  // sort it
   let pixels = imageDataDataToPixelDataArray(imgData.data);
 
-  for (let index = 0; index < pixels.length; index++) {
-    let pixel = pixels[index];
-
+  // put the pixels into buckets
+  pixels.forEach((pixel) => {
     if (pixel.h > 300 || pixel.h <= 60) {
       redPixels.push(pixel);
     } else if (pixel.h > 60 && pixel.h <= 180) {
@@ -74,27 +74,16 @@ export function draw(image, canvas) {
     } else if (pixel.h > 180 && pixel.h <= 300) {
       bluePixels.push(pixel);
     }
-  }
+  });
+
+  const compare = (a, b) => {
+    return b.h === a.h ? b.s - a.s : b.h - a.h;
+  };
 
   let newImgData = pixelDataArrayToimageDataData([
-    ...redPixels.sort((a, b) => {
-      if (b.r === a.r) {
-        return b.l - a.l;
-      }
-      return b.r - a.r;
-    }),
-    ...greenPixels.sort((a, b) => {
-      if (b.g === a.g) {
-        return b.l - a.l;
-      }
-      return b.g - a.g;
-    }),
-    ...bluePixels.sort((a, b) => {
-      if (b.b === a.b) {
-        return b.l - a.l;
-      }
-      return b.b - a.b;
-    }),
+    ...redPixels.sort(compare),
+    ...greenPixels.sort(compare),
+    ...bluePixels.sort(compare),
   ]);
 
   // set the data
@@ -103,12 +92,35 @@ export function draw(image, canvas) {
   // draw the altered image
   ctx.putImageData(imgData, imageWidth, 0);
 
-  var pixelTotal = redPixels.length + greenPixels.length + bluePixels.length;
-
   var outputObject = {
-    redPixels: (redPixels.length / pixelTotal).toFixed(2),
-    greenPixels: (greenPixels.length / pixelTotal).toFixed(2),
-    bluePixels: (bluePixels.length / pixelTotal).toFixed(2),
+    name: name,
+    redPixels: (redPixels.length / pixels.length).toFixed(3),
+    redstd: std(
+      redPixels.map((a) => {
+        var val = parseInt(a.h, 10) - 300;
+        return val < 0 ? val + 360 : val;
+      })
+    ).toFixed(3),
+    redMean: mean(
+      redPixels.map((a) => {
+        var val = parseInt(a.h, 10) - 300;
+        return val < 0 ? val + 360 : val;
+      })
+    ).toFixed(3),
+    redMed: median(
+      redPixels.map((a) => {
+        var val = parseInt(a.h, 10) - 300;
+        return val < 0 ? val + 360 : val;
+      })
+    ),
+    greenPixels: (greenPixels.length / pixels.length).toFixed(3),
+    greenstd: std(greenPixels.map((a) => parseInt(a.h, 10) - 60)).toFixed(3),
+    greenMean: mean(greenPixels.map((a) => parseInt(a.h, 10) - 60)).toFixed(3),
+    greenMed: median(greenPixels.map((a) => parseInt(a.h, 10) - 60)),
+    bluePixels: (bluePixels.length / pixels.length).toFixed(3),
+    bluestd: std(bluePixels.map((a) => parseInt(a.h, 10) - 180)).toFixed(3),
+    blueMean: mean(bluePixels.map((a) => parseInt(a.h, 10) - 180)).toFixed(3),
+    blueMed: median(bluePixels.map((a) => parseInt(a.h, 10) - 180)),
   };
 
   return outputObject;
