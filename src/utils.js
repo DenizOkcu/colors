@@ -92,35 +92,51 @@ export function draw(image, name, canvas) {
   // draw the altered image
   ctx.putImageData(imgData, imageWidth, 0);
 
+  var redMean = mean(
+    redPixels.map((a) => {
+      var val = parseInt(a.h, 10) - 300;
+      return val < 0 ? val + 360 : val;
+    })
+  );
+  var greenMean = mean(greenPixels.map((a) => parseInt(a.h, 10) - 60));
+  var blueMean = mean(bluePixels.map((a) => parseInt(a.h, 10) - 180));
+
   var outputObject = {
     name: name,
-    redPixels: (redPixels.length / pixels.length).toFixed(3),
-    redstd: std(
-      redPixels.map((a) => {
-        var val = parseInt(a.h, 10) - 300;
-        return val < 0 ? val + 360 : val;
-      })
-    ).toFixed(3),
-    redMean: mean(
-      redPixels.map((a) => {
-        var val = parseInt(a.h, 10) - 300;
-        return val < 0 ? val + 360 : val;
-      })
-    ).toFixed(3),
-    redMed: median(
-      redPixels.map((a) => {
-        var val = parseInt(a.h, 10) - 300;
-        return val < 0 ? val + 360 : val;
-      })
-    ),
-    greenPixels: (greenPixels.length / pixels.length).toFixed(3),
-    greenstd: std(greenPixels.map((a) => parseInt(a.h, 10) - 60)).toFixed(3),
-    greenMean: mean(greenPixels.map((a) => parseInt(a.h, 10) - 60)).toFixed(3),
-    greenMed: median(greenPixels.map((a) => parseInt(a.h, 10) - 60)),
-    bluePixels: (bluePixels.length / pixels.length).toFixed(3),
-    bluestd: std(bluePixels.map((a) => parseInt(a.h, 10) - 180)).toFixed(3),
-    blueMean: mean(bluePixels.map((a) => parseInt(a.h, 10) - 180)).toFixed(3),
-    blueMed: median(bluePixels.map((a) => parseInt(a.h, 10) - 180)),
+    redPixels: (redPixels.length / pixels.length).toFixed(4),
+    redstd: (
+      std(
+        redPixels.map((a) => {
+          var val = parseInt(a.h, 10) - 300;
+          return val < 0 ? val + 360 : val;
+        })
+      ) / redMean
+    ).toFixed(4),
+    redMean: (redMean / 120).toFixed(4),
+    redMed: (
+      median(
+        redPixels.map((a) => {
+          var val = parseInt(a.h, 10) - 300;
+          return val < 0 ? val + 360 : val;
+        })
+      ) / 120
+    ).toFixed(4),
+    greenPixels: (greenPixels.length / pixels.length).toFixed(4),
+    greenstd: (
+      std(greenPixels.map((a) => parseInt(a.h, 10) - 60)) / greenMean
+    ).toFixed(4),
+    greenMean: (greenMean / 120).toFixed(4),
+    greenMed: (
+      median(greenPixels.map((a) => parseInt(a.h, 10) - 60)) / 120
+    ).toFixed(4),
+    bluePixels: (bluePixels.length / pixels.length).toFixed(4),
+    bluestd: (
+      std(bluePixels.map((a) => parseInt(a.h, 10) - 180)) / blueMean
+    ).toFixed(4),
+    blueMean: (blueMean / 120).toFixed(4),
+    blueMed: (
+      median(bluePixels.map((a) => parseInt(a.h, 10) - 180)) / 120
+    ).toFixed(4),
   };
 
   return outputObject;
