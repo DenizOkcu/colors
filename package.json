@@ -30,6 +30,6 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "dependencies": {
-    "mathjs": "^7.3.0"
+    "mathjs": "^7.5.1"
   }
 }
